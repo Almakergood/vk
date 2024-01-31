@@ -15244,6 +15244,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
+		vkBridge.send('VKWebAppInit', {});
 	};
 	instanceProto.onDestroy = function ()
 	{
@@ -17314,8 +17315,7 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Button,
 	cr.plugins_.TextBox,
 	cr.plugins_.Text,
-	cr.system_object.prototype.cnds.OnLayoutStart,
-	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
+	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text
 ];};
