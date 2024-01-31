@@ -15226,6 +15226,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 };
 (function ()
 {
+	var self;
 	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
 	pluginProto.Type = function(plugin)
 	{
@@ -15244,6 +15245,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
+		self = this;
 		vkBridge.send('VKWebAppInit', {});
 	};
 	instanceProto.onDestroy = function ()
@@ -15264,15 +15266,31 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 	};
 	function Cnds() {};
-	Cnds.prototype.MyCondition = function (myparam)
+	Cnds.prototype.OnRewardLoaded = function ()
 	{
-		return myparam >= 0;
+		return true;
+	};
+	Cnds.prototype.OnInterstitialLoaded = function ()
+	{
+		return true;
 	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
 	{
-		BridgeSend(method, param);
+		BridgeSendEval(method, param);
+	};
+	Acts.prototype.CheckAds = function (param)
+	{
+		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: param})
+		.then((data) => {
+        if (data.result) {
+         if (param === "reward"){Trigger(Condition().OnRewardLoaded)}
+		 else {Trigger(Condition().OnInterstitialLoaded)}
+      } else {
+        console.log('Рекламные материалы не найдены.');
+      }
+  })
 	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
@@ -15281,11 +15299,17 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		ret.set_int(1337);				// return our value
 	};
 	pluginProto.exps = new Exps();
-	function BridgeSend (func, param)
+	function BridgeSendEval (func, param)
 	{
 		let param_obj = eval ('{' + param + '}');
 		vkBridge.send(func, param_obj);
 	}
+	function Condition(){
+	 return cr.plugins_.AMG_VKbridge.prototype.cnds;
+     }
+	 function Trigger(trigger){
+	 self.runtime.trigger( trigger, self );
+     }
 }());
 ;
 ;
@@ -17316,13 +17340,17 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Browser,
 	cr.plugins_.Button,
-	cr.plugins_.Text,
+	cr.plugins_.Browser,
 	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
 	cr.system_object.prototype.cnds.OnLayoutStart,
-	cr.plugins_.AMG_VKbridge.prototype.acts.VKsend
+	cr.plugins_.AMG_VKbridge.prototype.acts.VKsend,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnRewardLoaded,
+	cr.plugins_.Browser.prototype.acts.Alert,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialLoaded,
+	cr.plugins_.AMG_VKbridge.prototype.acts.CheckAds
 ];};
