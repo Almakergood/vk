@@ -15244,7 +15244,6 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
-		IncludeSDK();
 	};
 	instanceProto.onDestroy = function ()
 	{
@@ -15281,16 +15280,6 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		ret.set_int(1337);				// return our value
 	};
 	pluginProto.exps = new Exps();
-function IncludeSDK(){
-	(function(d) {
-        var t = d.getElementsByTagName('script')[0];
-        var s = d.createElement('script');
-        s.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
-        s.async = true;
-        t.parentNode.insertBefore(s, t);
-        s.onload = vkBridge.send("VKWebAppInit", {});
-       })(document);
-}
 }());
 ;
 ;
