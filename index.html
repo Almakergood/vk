@@ -131,7 +131,11 @@
 			}
 		};
     </script>
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    <script>vkBridge.send("VKWebAppInit", {});</script>
+    <script> 
+	    var vk = document.createElement("script");
+            vk.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
+            document.getElementsByTagName("head")[0].appendChild(vk);
+	    vkBridge.send("VKWebAppInit", {});   
+    </script>
 </body> 
 </html> 
