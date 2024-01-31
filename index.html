@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<title>New project 8</title>
+	<title>New project 9</title>
 	
 	<!-- Standardised web app manifest -->
 	<link rel="manifest" href="appmanifest.json" />
@@ -38,7 +38,8 @@
 			-ms-touch-action: none;
 		}
     </style>
-	<script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js" async> vkBridge.send("VKWebAppInit", {}); </script>
+	
+
 </head> 
  
 <body> 
@@ -130,12 +131,6 @@
 				OnRegisterSWError(e);
 			}
 		};
-    </script>
-    <script> 
-	    var vk = document.createElement("script");
-            vk.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
-            document.getElementsByTagName("head")[0].appendChild(vk);
-	    vkBridge.send("VKWebAppInit", {});   
     </script>
 </body> 
 </html> 
