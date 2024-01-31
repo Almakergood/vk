@@ -15283,7 +15283,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	pluginProto.exps = new Exps();
 	function BridgeSend (func, param)
 	{
-		let param_obj = eval (param);
+		let param_obj = eval ('{' + param + '}');
 		vkBridge.send(func, param_obj);
 	}
 }());
@@ -17316,11 +17316,13 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Button,
 	cr.plugins_.Browser,
-	cr.plugins_.TextBox,
+	cr.plugins_.Button,
 	cr.plugins_.Text,
+	cr.plugins_.TextBox,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
-	cr.plugins_.TextBox.prototype.exps.Text
+	cr.plugins_.TextBox.prototype.exps.Text,
+	cr.system_object.prototype.cnds.OnLayoutStart,
+	cr.plugins_.AMG_VKbridge.prototype.acts.VKsend
 ];};
