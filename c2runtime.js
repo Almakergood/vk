@@ -15240,14 +15240,14 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 		this.type = type;
 		this.runtime = type.runtime;
-		var vk = document.createElement("script");
-            vk.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
-            document.getElementsByTagName("head")[0].appendChild(vk);
-	    vkBridge.send("VKWebAppInit", {});
 	};
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
+		var vk = document.createElement("script");
+        vk.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
+        document.getElementsByTagName("head")[0].appendChild(vk);
+	    vkBridge.send("VKWebAppInit", {});
 	};
 	instanceProto.onDestroy = function ()
 	{
@@ -17313,11 +17313,11 @@ cr.plugins_.TextBox = function(runtime)
 	pluginProto.exps = new Exps();
 }());
 cr.getObjectRefTable = function () { return [
-	cr.plugins_.Text,
-	cr.plugins_.TextBox,
 	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Browser,
 	cr.plugins_.Button,
+	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text
