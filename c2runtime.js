@@ -15220,6 +15220,80 @@ cr.system_object.prototype.loadFromJSON = function (o)
 cr.shaders = {};
 ;
 ;
+cr.plugins_.AMG_VKbridge = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+		IncludeSDK();
+	};
+	instanceProto.onDestroy = function ()
+	{
+	};
+	instanceProto.saveToJSON = function ()
+	{
+		return {
+		};
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+	};
+	instanceProto.draw = function(ctx)
+	{
+	};
+	instanceProto.drawGL = function (glw)
+	{
+	};
+	function Cnds() {};
+	Cnds.prototype.MyCondition = function (myparam)
+	{
+		return myparam >= 0;
+	};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.MyAction = function (myparam)
+	{
+		alert(myparam);
+	};
+	pluginProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_int(1337);				// return our value
+	};
+	pluginProto.exps = new Exps();
+function IncludeSDK(){
+	(function(d) {
+        var t = d.getElementsByTagName('script')[0];
+        var s = d.createElement('script');
+        s.src = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
+        s.async = true;
+        t.parentNode.insertBefore(s, t);
+        s.onload = vkBridge.send("VKWebAppInit", {});
+       })(document);
+}
+}());
+;
+;
 cr.plugins_.Browser = function(runtime)
 {
 	this.runtime = runtime;
@@ -17246,10 +17320,11 @@ cr.plugins_.TextBox = function(runtime)
 	pluginProto.exps = new Exps();
 }());
 cr.getObjectRefTable = function () { return [
+	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Browser,
 	cr.plugins_.Button,
-	cr.plugins_.Text,
 	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text
