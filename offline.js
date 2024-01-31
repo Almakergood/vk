@@ -1,5 +1,5 @@
 ﻿{
-	"version": 1706691068,
+	"version": 1706692203,
 	"fileList": [
 		"data.js",
 		"c2runtime.js",
@@ -11,7 +11,6 @@
 		"icon-128.png",
 		"icon-256.png",
 		"loading-logo.png",
-		"file.js",
 		"https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"
 	]
 }

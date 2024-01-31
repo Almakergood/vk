@@ -17312,10 +17312,10 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Browser,
 	cr.plugins_.Button,
-	cr.plugins_.Text,
 	cr.plugins_.TextBox,
-	cr.plugins_.Button.prototype.cnds.OnClicked,
+	cr.plugins_.Text,
+	cr.system_object.prototype.cnds.OnLayoutStart,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
-	cr.plugins_.TextBox.prototype.exps.Text,
-	cr.system_object.prototype.cnds.OnLayoutStart
+	cr.plugins_.Button.prototype.cnds.OnClicked,
+	cr.plugins_.TextBox.prototype.exps.Text
 ];};
