@@ -15282,8 +15282,11 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	};
 	Acts.prototype.CheckAds = function (param)
 	{
-		alert("Запуск VKWebAppCheckNativeAds, парам " + param);
-		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: param})
+		let typeAds = "";
+	    if (param === 0) {typeAds = "reward";}
+		else {typeAds = "interstitial"}
+		alert("Запуск VKWebAppCheckNativeAds, парам: " + param + ", type: " + typeAds);
+		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: typeAds})
 		.then((data) => {
         if (data.result) {Trigger(Condition().OnRewardLoaded); alert("Триггер, парам " + param);}
 	    else {
