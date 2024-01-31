@@ -15288,11 +15288,11 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		alert("Запуск VKWebAppCheckNativeAds, парам: " + param + ", type: " + typeAds);
 		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: typeAds})
 		.then((data) => {
-        if (data.result) {Trigger(Condition().OnRewardLoaded); alert("Триггер, парам " + param);}
-	    else {
-        console.log('Рекламные материалы не найдены.');
-      }
-     })
+        if (data.result) {
+		    if (typeAds === "reward") {Trigger(Condition().OnRewardLoaded); alert("Триггер, парам " + param);}
+			else {Trigger(Condition().OnInterstitialLoaded); alert("Триггер, парам " + param);} }
+	    else {console.log('Рекламные материалы не найдены.');}
+        })
 	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
@@ -17344,8 +17344,8 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Button,
 	cr.plugins_.Browser,
-	cr.plugins_.Text,
 	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
