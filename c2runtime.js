@@ -15282,9 +15282,10 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	};
 	Acts.prototype.CheckAds = function (param)
 	{
+		alert("Запуск VKWebAppCheckNativeAds, парам " + param);
 		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: param})
 		.then((data) => {
-        if (data.result) {Trigger(Condition().OnRewardLoaded)}
+        if (data.result) {Trigger(Condition().OnRewardLoaded); alert("Триггер, парам " + param);}
 	    else {
         console.log('Рекламные материалы не найдены.');
       }
