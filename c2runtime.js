@@ -15229,6 +15229,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var self;
 	var sdk_event = "";
 	var sdk_result = "";
+	var sdk_error = "";
 	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
 	pluginProto.Type = function(plugin)
 	{
@@ -15277,6 +15278,9 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	Cnds.prototype.OnBannerHide = function () {return true;};
 	Cnds.prototype.OnAnyVKbridge = function () {return true;};
 	Cnds.prototype.OnLider = function () {return true;};
+	Cnds.prototype.OnAddToFavorite = function () {return true;};
+	Cnds.prototype.OnMakeToHomeScreen = function () {return true;};
+	Cnds.prototype.OnAddToHomeScreen = function () {return true;};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
@@ -15285,63 +15289,96 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	};
 	Acts.prototype.CheckAds = function (param)
 	{
+		let mName = 'VKWebAppCheckNativeAds';
 		let typeAds = "";
 	    if (param === 0) {typeAds = "reward";}
 		else {typeAds = "interstitial"}
-		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: typeAds})
+		vkBridge.send(mName, {ad_format: typeAds})
 		.then((data) => {
-			SetMethodResult('VKWebAppCheckNativeAds', data.result);
+			SetMethodResult(mName, data.result);
         if (data.result) {
 		    if (typeAds === "reward") {Trigger(Condition().OnRewardLoaded); }
 		    else {Trigger(Condition().OnInterstitialLoaded); }}
 	    else {console.log('Рекламные материалы не найдены.'); }
-        })
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
 	Acts.prototype.ShowAdsVideo = function (param)
 	{
+		let mName = 'VKWebAppShowNativeAds';
 		let typeAds = "";
 	    if (param === 0) {typeAds = "reward";}
 		else {typeAds = "interstitial";}
-		vkBridge.send('VKWebAppShowNativeAds', {ad_format: typeAds})
+		vkBridge.send(mName, {ad_format: typeAds})
 		.then((data) => {
-			SetMethodResult('VKWebAppShowNativeAds', data.result);
+			SetMethodResult(mName, data.result);
         if (data.result) {
 		    if (typeAds === "reward") {Trigger(Condition().OnRewardShown); }
 		    else {Trigger(Condition().OnInterstitialShown); }}
 	    else {console.log('Рекламные материалы не найдены.'); }
-        })
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
 	Acts.prototype.ShowBanner = function (param)
 	{
+		let mName = 'VKWebAppShowBannerAd';
 		let typeAds = "";
 	    if (param === 0) {typeAds = "bottom";}
 		else {typeAds = "top";}
-		vkBridge.send('VKWebAppShowBannerAd', {banner_location: typeAds})
+		vkBridge.send(mName, {banner_location: typeAds})
 		.then((data) => {
-		SetMethodResult('VKWebAppShowBannerAd', data.result);
+		SetMethodResult(mName, data.result);
         if (data.result) {Trigger(Condition().OnBannerShow);}
-        })
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
 	Acts.prototype.HideBanner = function ()
 	{
-		vkBridge.send('VKWebAppHideBannerAd')
+		let mName = 'VKWebAppHideBannerAd';
+		vkBridge.send(mName)
 		.then((data) => {
-            SetMethodResult('VKWebAppHideBannerAd', data.result);
+            SetMethodResult(mName, data.result);
 			if (data.result) {Trigger(Condition().OnBannerHide);}
-        })
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
 	Acts.prototype.ShowLider = function (param)
 	{
-		vkBridge.send('VKWebAppShowLeaderBoardBox', {user_results: param})
+		let mName = 'VKWebAppShowLeaderBoardBox';
+		vkBridge.send(mName, {user_results: param})
 		.then((data) => {
-            SetMethodResult('VKWebAppShowLeaderBoardBox', data.result);
+            SetMethodResult(mName, data.result);
 			if (data.result) {Trigger(Condition().OnLider);}
-        })
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
+	Acts.prototype.AddToFavorite = function ()
+	{
+		let mName = 'VKWebAppAddToFavorites';
+		vkBridge.send(mName)
+		.then((data) => {
+            SetMethodResult(mName, data.result);
+			if (data.result) {Trigger(Condition().OnAddToFavorite);}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
+	Acts.prototype.CheckToHomeScreen = function ()
+	{
+		let mName = 'VKWebAppAddToHomeScreenInfo';
+		vkBridge.send(mName)
+		.then((data) => {
+            SetMethodResult(mName, data.is_added_to_home_screen);
+			if (!data.is_added_to_home_screen) {Trigger(Condition().OnMakeToHomeScreen);}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
+	Acts.prototype.AddToHomeScreen = function ()
+	{
+		let mName = 'VKWebAppAddToHomeScreen';
+		vkBridge.send(mName)
+		.then((data) => {
+            SetMethodResult(mName, data.result);
+			if (data.result) {Trigger(Condition().OnAddToHomeScreen);}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
 	Exps.prototype.sdk_method = function (ret) { ret.set_string(sdk_event);	};
 	Exps.prototype.sdk_result = function (ret) { ret.set_int(sdk_result);	};
+	Exps.prototype.sdk_error = function (ret) { ret.set_int(sdk_error);	};
 	pluginProto.exps = new Exps();
 	function BridgeSendEval (func, param)
 	{
@@ -15357,9 +15394,10 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	 function Trigger(trigger){
 	 self.runtime.trigger( trigger, self );
      }
-	 function SetMethodResult (method, res)
+	 function SetMethodResult (method, res, err)
 	 { sdk_event = method;
 	   sdk_result = res === true? 1 : 0;
+	   sdk_error = err;
 	   Trigger(Condition().OnAnyVKbridge);
 	 }
 }());
@@ -17394,8 +17432,8 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Browser,
 	cr.plugins_.Button,
-	cr.plugins_.Text,
 	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
@@ -17415,10 +17453,17 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAnyVKbridge,
 	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_method,
 	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_result,
+	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_error,
 	cr.system_object.prototype.acts.SetVar,
 	cr.plugins_.Browser.prototype.exps.ExecJS,
 	cr.system_object.prototype.exps.newline,
 	cr.system_object.prototype.exps.tokenat,
 	cr.plugins_.AMG_VKbridge.prototype.acts.ShowLider,
-	cr.plugins_.AMG_VKbridge.prototype.cnds.OnLider
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnLider,
+	cr.plugins_.AMG_VKbridge.prototype.acts.AddToFavorite,
+	cr.plugins_.AMG_VKbridge.prototype.acts.CheckToHomeScreen,
+	cr.plugins_.AMG_VKbridge.prototype.acts.AddToHomeScreen,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAddToFavorite,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnMakeToHomeScreen,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAddToHomeScreen
 ];};
