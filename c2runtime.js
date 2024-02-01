@@ -15276,6 +15276,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	Cnds.prototype.OnBannerShow = function () {return true;};
 	Cnds.prototype.OnBannerHide = function () {return true;};
 	Cnds.prototype.OnAnyVKbridge = function () {return true;};
+	Cnds.prototype.OnLider = function () {return true;};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
@@ -15327,6 +15328,14 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		.then((data) => {
             SetMethodResult('VKWebAppHideBannerAd', data.result);
 			if (data.result) {Trigger(Condition().OnBannerHide);}
+        })
+	};
+	Acts.prototype.ShowLider = function (param)
+	{
+		vkBridge.send('VKWebAppShowLeaderBoardBox', {user_results: param})
+		.then((data) => {
+            SetMethodResult('VKWebAppShowLeaderBoardBox', data.result);
+			if (data.result) {Trigger(Condition().OnLider);}
         })
 	};
 	pluginProto.acts = new Acts();
@@ -17383,10 +17392,10 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Button,
 	cr.plugins_.Browser,
-	cr.plugins_.TextBox,
+	cr.plugins_.Button,
 	cr.plugins_.Text,
+	cr.plugins_.TextBox,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
@@ -17409,5 +17418,7 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.acts.SetVar,
 	cr.plugins_.Browser.prototype.exps.ExecJS,
 	cr.system_object.prototype.exps.newline,
-	cr.system_object.prototype.exps.tokenat
+	cr.system_object.prototype.exps.tokenat,
+	cr.plugins_.AMG_VKbridge.prototype.acts.ShowLider,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnLider
 ];};
