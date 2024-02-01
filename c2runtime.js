@@ -15266,14 +15266,12 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 	};
 	function Cnds() {};
-	Cnds.prototype.OnRewardLoaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInterstitialLoaded = function ()
-	{
-		return true;
-	};
+	Cnds.prototype.OnRewardLoaded = function () {return true;};
+	Cnds.prototype.OnInterstitialLoaded = function () {return true;};
+	Cnds.prototype.OnRewardShown = function () {return true;};
+	Cnds.prototype.OnInterstitialShown = function () {return true;};
+	Cnds.prototype.OnBannerShow = function () {return true;};
+	Cnds.prototype.OnBannerHide = function () {return true;};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
@@ -15285,13 +15283,44 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		let typeAds = "";
 	    if (param === 0) {typeAds = "reward";}
 		else {typeAds = "interstitial"}
-		alert("Запуск VKWebAppCheckNativeAds, парам: " + param + ", type: " + typeAds);
 		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: typeAds})
 		.then((data) => {
         if (data.result) {
-		    if (typeAds === "reward") {Trigger(Condition().OnRewardLoaded); alert("Триггер, парам " + param);}
-			else {Trigger(Condition().OnInterstitialLoaded); alert("Триггер, парам " + param);} }
-	    else {console.log('Рекламные материалы не найдены.');}
+		    if (typeAds === "reward") {Trigger(Condition().OnRewardLoaded); }
+		    else {Trigger(Condition().OnInterstitialLoaded); }}
+	    else {console.log('Рекламные материалы не найдены.'); }
+        })
+	};
+	Acts.prototype.ShowAdsVideo = function (param)
+	{
+		let typeAds = "";
+	    if (param === 0) {typeAds = "reward";}
+		else {typeAds = "interstitial"}
+		vkBridge.send('VKWebAppShowNativeAds', {ad_format: typeAds})
+		.then((data) => {
+        if (data.result) {
+		    if (typeAds === "reward") {Trigger(Condition().OnRewardShown); }
+		    else {Trigger(Condition().OnInterstitialShown); }}
+	    else {console.log('Рекламные материалы не найдены.'); }
+        })
+	};
+	Acts.prototype.ShowBanner = function (param)
+	{
+		let typeAds = "";
+	    if (param === 0) {typeAds = "bottom";}
+		else {typeAds = "top"}
+		vkBridge.send('VKWebAppShowBannerAd', {banner_location: typeAds})
+		.then((data) => {
+        if (data.result) {Trigger(Condition().OnBannerShow);}
+	    else {console.log('Показать баннер: баннер не отображен!'); }
+        })
+	};
+	Acts.prototype.HideBanner = function ()
+	{
+		vkBridge.send('VKWebAppHideBannerAd')
+		.then((data) => {
+        if (data.result) {Trigger(Condition().OnBannerHide);}
+	    else {console.log('Скрыть баннер: баннер не скрыт!'); }
         })
 	};
 	pluginProto.acts = new Acts();
@@ -17342,8 +17371,8 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Button,
 	cr.plugins_.Browser,
+	cr.plugins_.Button,
 	cr.plugins_.TextBox,
 	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
@@ -17354,5 +17383,12 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnRewardLoaded,
 	cr.plugins_.Browser.prototype.acts.Alert,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialLoaded,
-	cr.plugins_.AMG_VKbridge.prototype.acts.CheckAds
+	cr.plugins_.AMG_VKbridge.prototype.acts.CheckAds,
+	cr.plugins_.AMG_VKbridge.prototype.acts.HideBanner,
+	cr.plugins_.AMG_VKbridge.prototype.acts.ShowBanner,
+	cr.plugins_.AMG_VKbridge.prototype.acts.ShowAdsVideo,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnBannerShow,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnBannerHide,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnRewardShown,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialShown
 ];};
