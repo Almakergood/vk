@@ -17408,5 +17408,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_result,
 	cr.system_object.prototype.acts.SetVar,
 	cr.plugins_.Browser.prototype.exps.ExecJS,
+	cr.system_object.prototype.exps.newline,
 	cr.system_object.prototype.exps.tokenat
 ];};
