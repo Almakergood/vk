@@ -15227,6 +15227,8 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 (function ()
 {
 	var self;
+	var sdk_event = "";
+	var sdk_result = "";
 	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
 	pluginProto.Type = function(plugin)
 	{
@@ -15266,12 +15268,14 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 	};
 	function Cnds() {};
+    Cnds.prototype.OnVKbridge = function () {return true;};
 	Cnds.prototype.OnRewardLoaded = function () {return true;};
 	Cnds.prototype.OnInterstitialLoaded = function () {return true;};
 	Cnds.prototype.OnRewardShown = function () {return true;};
 	Cnds.prototype.OnInterstitialShown = function () {return true;};
 	Cnds.prototype.OnBannerShow = function () {return true;};
 	Cnds.prototype.OnBannerHide = function () {return true;};
+	Cnds.prototype.OnAnyVKbridge = function () {return true;};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
@@ -15285,6 +15289,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 		else {typeAds = "interstitial"}
 		vkBridge.send('VKWebAppCheckNativeAds', {ad_format: typeAds})
 		.then((data) => {
+			SetMethodResult('VKWebAppCheckNativeAds', data.result);
         if (data.result) {
 		    if (typeAds === "reward") {Trigger(Condition().OnRewardLoaded); }
 		    else {Trigger(Condition().OnInterstitialLoaded); }}
@@ -15295,9 +15300,10 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 		let typeAds = "";
 	    if (param === 0) {typeAds = "reward";}
-		else {typeAds = "interstitial"}
+		else {typeAds = "interstitial";}
 		vkBridge.send('VKWebAppShowNativeAds', {ad_format: typeAds})
 		.then((data) => {
+			SetMethodResult('VKWebAppShowNativeAds', data.result);
         if (data.result) {
 		    if (typeAds === "reward") {Trigger(Condition().OnRewardShown); }
 		    else {Trigger(Condition().OnInterstitialShown); }}
@@ -15308,32 +15314,33 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	{
 		let typeAds = "";
 	    if (param === 0) {typeAds = "bottom";}
-		else {typeAds = "top"}
+		else {typeAds = "top";}
 		vkBridge.send('VKWebAppShowBannerAd', {banner_location: typeAds})
 		.then((data) => {
+		SetMethodResult('VKWebAppShowBannerAd', data.result);
         if (data.result) {Trigger(Condition().OnBannerShow);}
-	    else {console.log('Показать баннер: баннер не отображен!'); }
         })
 	};
 	Acts.prototype.HideBanner = function ()
 	{
 		vkBridge.send('VKWebAppHideBannerAd')
 		.then((data) => {
-        if (data.result) {Trigger(Condition().OnBannerHide);}
-	    else {console.log('Скрыть баннер: баннер не скрыт!'); }
+            SetMethodResult('VKWebAppHideBannerAd', data.result);
+			if (data.result) {Trigger(Condition().OnBannerHide);}
         })
 	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
-	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_int(1337);				// return our value
-	};
+	Exps.prototype.sdk_method = function (ret) { ret.set_string(sdk_event);	};
+	Exps.prototype.sdk_result = function (ret) { ret.set_int(sdk_result);	};
 	pluginProto.exps = new Exps();
 	function BridgeSendEval (func, param)
 	{
 		let param_obj = eval ('{' + param + '}');
-		vkBridge.send(func, param_obj);
+		vkBridge.send(func, param_obj).then((data) => {
+			SetMethodResult(func, data.result);
+		    Trigger(Condition().OnVKbridge);
+			});
 	}
 	function Condition(){
 	 return cr.plugins_.AMG_VKbridge.prototype.cnds;
@@ -15341,6 +15348,11 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	 function Trigger(trigger){
 	 self.runtime.trigger( trigger, self );
      }
+	 function SetMethodResult (method, res)
+	 { sdk_event = method;
+	   sdk_result = res === true? 1 : 0;
+	   Trigger(Condition().OnAnyVKbridge);
+	 }
 }());
 ;
 ;
@@ -17371,8 +17383,8 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Browser,
 	cr.plugins_.Button,
+	cr.plugins_.Browser,
 	cr.plugins_.TextBox,
 	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
@@ -17390,5 +17402,11 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnBannerShow,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnBannerHide,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnRewardShown,
-	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialShown
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialShown,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAnyVKbridge,
+	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_method,
+	cr.plugins_.AMG_VKbridge.prototype.exps.sdk_result,
+	cr.system_object.prototype.acts.SetVar,
+	cr.plugins_.Browser.prototype.exps.ExecJS,
+	cr.system_object.prototype.exps.tokenat
 ];};
