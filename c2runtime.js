@@ -15459,6 +15459,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	 { sdk_event = method;
 	   sdk_result = res === true? 1 : 0;
 	   sdk_error = err;
+	   if (err) {console.log(err);}
 	   Trigger(Condition().OnAnyVKbridge);
 	 }
 }());
@@ -17490,11 +17491,11 @@ cr.plugins_.TextBox = function(runtime)
 	pluginProto.exps = new Exps();
 }());
 cr.getObjectRefTable = function () { return [
-	cr.plugins_.Text,
-	cr.plugins_.TextBox,
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Browser,
 	cr.plugins_.Button,
+	cr.plugins_.Browser,
+	cr.plugins_.TextBox,
+	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
