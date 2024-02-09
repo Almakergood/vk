@@ -15230,6 +15230,7 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var sdk_event = "";
 	var sdk_result = "";
 	var sdk_error = "";
+	var sdk_storage;
 	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
 	pluginProto.Type = function(plugin)
 	{
@@ -15281,6 +15282,9 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	Cnds.prototype.OnAddToFavorite = function () {return true;};
 	Cnds.prototype.OnMakeToHomeScreen = function () {return true;};
 	Cnds.prototype.OnAddToHomeScreen = function () {return true;};
+	Cnds.prototype.OnAddAddFriends = function () {return true;};
+	Cnds.prototype.OnSaveKey = function () {return true;};
+	Cnds.prototype.OnGetKeys = function () {return true;};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.VKsend = function (method, param)
@@ -15374,11 +15378,68 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 			if (data.result) {Trigger(Condition().OnAddToHomeScreen);}
         }).catch( (e) => { SetMethodResult(mName, false, e);});
 	};
+	Acts.prototype.AddFriends = function (param)
+	{
+		let mName = 'VKWebAppShowInviteBox';
+		vkBridge.send(mName, {requestKey: param})
+		.then((data) => {
+            SetMethodResult(mName, data.success, data.notSentIds);
+			if (data.success) {Trigger(Condition().OnAddAddFriends);}
+        }).catch( (e) => {
+			let { error_code, error_reason } = e.error_data;
+			let errStr = "error_code: " + error_code + "; error_reason: " + error_reason;
+			SetMethodResult(mName, false, errStr);});
+	};
+	Acts.prototype.AddOnWall = function (mes, link)
+	{
+		let mName = 'VKWebAppShowWallPostBox';
+		vkBridge.send(mName, {message: mes, attachments: link})
+		.then((data) => {
+            SetMethodResult(mName, data.result);
+			if (data.post_id) {Trigger(Condition().OnAddOnWall);}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
+	Acts.prototype.SaveKey = function (item, val)
+	{
+		let mName = 'VKWebAppStorageSet';
+		vkBridge.send(mName, {key: item, value: val})
+		.then((data) => {
+            SetMethodResult(mName, data.result);
+			if (data.result) {Trigger(Condition().OnSaveKey);}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
+	Acts.prototype.GetKeys = function (c, o)
+	{
+		let mName = 'VKWebAppStorageGetKeys';
+		vkBridge.send(mName, {count: c, offset: o})
+		.then((data) => {
+            SetMethodResult(mName, data.keys);
+			if (data.keys) {
+				mName = 'VKWebAppStorageGet';
+				vkBridge.send(mName, {keys: data.keys})
+		          .then((data1) => {
+                     SetMethodResult(mName, data1.keys);
+			         if (data1.keys) {
+						 sdk_storage = data1.keys;
+				         Trigger(Condition().OnGetKeys); }
+                  }).catch( (e) => { SetMethodResult(mName, false, e);});
+				}
+        }).catch( (e) => { SetMethodResult(mName, false, e);});
+	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
 	Exps.prototype.sdk_method = function (ret) { ret.set_string(sdk_event);	};
 	Exps.prototype.sdk_result = function (ret) { ret.set_int(sdk_result);	};
-	Exps.prototype.sdk_error = function (ret) { ret.set_int(sdk_error);	};
+	Exps.prototype.sdk_error = function (ret) { ret.set_string(sdk_error);	};
+	Exps.prototype.getKey = function (ret, key) {
+		let res;
+		if (sdk_storage) {
+		    for (let i = 0; i < sdk_storage.length; i++) { if (sdk_storage[i] === key) { res = sdk_storage[i]; break;} }
+		}
+		else { res = "Ключей нет"; }
+		if (!res) {res = "Ключ не найден"; }
+	    ret.set_string(res);
+	};
 	pluginProto.exps = new Exps();
 	function BridgeSendEval (func, param)
 	{
@@ -17429,11 +17490,11 @@ cr.plugins_.TextBox = function(runtime)
 	pluginProto.exps = new Exps();
 }());
 cr.getObjectRefTable = function () { return [
+	cr.plugins_.Text,
+	cr.plugins_.TextBox,
 	cr.plugins_.AMG_VKbridge,
 	cr.plugins_.Browser,
 	cr.plugins_.Button,
-	cr.plugins_.TextBox,
-	cr.plugins_.Text,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
@@ -17465,5 +17526,11 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.acts.AddToHomeScreen,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAddToFavorite,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnMakeToHomeScreen,
-	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAddToHomeScreen
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnAddToHomeScreen,
+	cr.plugins_.AMG_VKbridge.prototype.exps.getKey,
+	cr.plugins_.AMG_VKbridge.prototype.acts.SaveKey,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnSaveKey,
+	cr.system_object.prototype.exps["int"],
+	cr.plugins_.AMG_VKbridge.prototype.acts.GetKeys,
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnGetKeys
 ];};
