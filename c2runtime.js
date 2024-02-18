@@ -15231,6 +15231,8 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	var sdk_result = "";
 	var sdk_error = "";
 	var sdk_storage;
+	var sdk_lunchParams;
+	var sdk_inite = 0;
 	var pluginProto = cr.plugins_.AMG_VKbridge.prototype;
 	pluginProto.Type = function(plugin)
 	{
@@ -15250,7 +15252,11 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	instanceProto.onCreate = function()
 	{
 		self = this;
-		vkBridge.send('VKWebAppInit', {});
+		vkBridge.send('VKWebAppInit')
+            .then((data) => {
+			   console.log("vkBridge Init");
+               sdk_inite = 1; GetLunchParamp();  })
+            .catch((error) => { console.log(error); });
 	};
 	instanceProto.onDestroy = function ()
 	{
@@ -15432,15 +15438,32 @@ cr.plugins_.AMG_VKbridge = function(runtime)
 	Exps.prototype.sdk_result = function (ret) { ret.set_int(sdk_result);	};
 	Exps.prototype.sdk_error = function (ret) { ret.set_string(sdk_error);	};
 	Exps.prototype.getKey = function (ret, key) {
-		let res;
+		let res = "";
 		if (sdk_storage) {
 		    for (let i = 0; i < sdk_storage.length; i++) { if (sdk_storage[i] === key) { res = sdk_storage[i]; break;} }
 		}
-		else { res = "Ключей нет"; }
-		if (!res) {res = "Ключ не найден"; }
+		else { res = ""; }
+		if (!res) {res = ""; }
 	    ret.set_string(res);
 	};
+	Exps.prototype.getLanchProp = function (ret, prop) {
+		if (sdk_lunchParams){
+		ret.set_string(sdk_lunchParams[prop]);	};
+	}
+	Exps.prototype.sdk_inite = function (ret) { ret.set_int(sdk_inite);	};
 	pluginProto.exps = new Exps();
+	function GetLunchParamp (){
+		vkBridge.send('VKWebAppGetLaunchParams')
+            .then((data) => {
+                if (data.vk_app_id) {
+                    sdk_lunchParams = data;
+                    }
+            })
+             .catch((error) => {
+				   data = error;
+                   console.log(error);
+            });
+	}
 	function BridgeSendEval (func, param)
 	{
 		let param_obj = eval ('{' + param + '}');
@@ -17492,15 +17515,13 @@ cr.plugins_.TextBox = function(runtime)
 }());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge,
-	cr.plugins_.Button,
 	cr.plugins_.Browser,
-	cr.plugins_.TextBox,
+	cr.plugins_.Button,
 	cr.plugins_.Text,
+	cr.plugins_.TextBox,
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.Browser.prototype.acts.ExecJs,
 	cr.plugins_.TextBox.prototype.exps.Text,
-	cr.system_object.prototype.cnds.OnLayoutStart,
-	cr.plugins_.AMG_VKbridge.prototype.acts.VKsend,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnRewardLoaded,
 	cr.plugins_.Browser.prototype.acts.Alert,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnInterstitialLoaded,
@@ -17520,6 +17541,7 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Browser.prototype.exps.ExecJS,
 	cr.system_object.prototype.exps.newline,
 	cr.system_object.prototype.exps.tokenat,
+	cr.plugins_.AMG_VKbridge.prototype.acts.VKsend,
 	cr.plugins_.AMG_VKbridge.prototype.acts.ShowLider,
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnLider,
 	cr.plugins_.AMG_VKbridge.prototype.acts.AddToFavorite,
@@ -17533,5 +17555,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.AMG_VKbridge.prototype.cnds.OnSaveKey,
 	cr.system_object.prototype.exps["int"],
 	cr.plugins_.AMG_VKbridge.prototype.acts.GetKeys,
-	cr.plugins_.AMG_VKbridge.prototype.cnds.OnGetKeys
+	cr.plugins_.AMG_VKbridge.prototype.cnds.OnGetKeys,
+	cr.plugins_.AMG_VKbridge.prototype.exps.getLanchProp
 ];};
